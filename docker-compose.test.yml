@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  firestore-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: gcloud emulators firestore start --host-port=0.0.0.0:8080 --project=suas-local
+    ports:
+      - "8080:8080"
+    networks:
+      - suas-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend-test:
+    build:
+      context: ./backend
+    networks:
+      - suas-network
+    depends_on:
+      firestore-emulator:
+        condition: service_healthy
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+      - APP_ENV=test
+      - GCP_PROJECT_ID=suas-local
+      - ALLOWED_USER_EMAIL=test@example.com
+      - ANTHROPIC_API_KEY=test-key
+      - GEMINI_API_KEY=test-key
+      - FACEBOOK_PAGE_ID=test-page-id
+      - FACEBOOK_PAGE_ACCESS_TOKEN=test-token
+      - REDDIT_CLIENT_ID=test-id
+      - REDDIT_CLIENT_SECRET=test-secret
+      - GCS_BUCKET_NAME=suas-test-bucket
+    command: python -m pytest tests/ --cov=app --cov-report=xml --cov-report=term-missing -v
+
+networks:
+  suas-network:
+    driver: bridge

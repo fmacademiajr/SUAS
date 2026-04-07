@@ -1,0 +1,21 @@
+root = true
+
+# All files
+[*]
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Python files
+[*.py]
+indent_size = 4
+
+# JavaScript, TypeScript, JSON, YAML, TOML, CSS, HTML files
+[*.{js,jsx,ts,tsx,json,yaml,yml,toml,css,html}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  firestore-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: gcloud emulators firestore start --host-port=0.0.0.0:8080 --project=suas-local
+    ports:
+      - "8080:8080"
+    networks:
+      - suas-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    ports:
+      - "8000:8080"
+    networks:
+      - suas-network
+    depends_on:
+      firestore-emulator:
+        condition: service_healthy
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+      - APP_ENV=local
+      - GCP_PROJECT_ID=suas-local
+    env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/.venv
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    ports:
+      - "5173:5173"
+    networks:
+      - suas-network
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    command: npm run dev -- --host 0.0.0.0
+
+networks:
+  suas-network:
+    driver: bridge

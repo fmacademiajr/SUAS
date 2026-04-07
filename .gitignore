@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+.venv/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node/Frontend
+node_modules/
+.next/
+*.tsbuildinfo
+frontend/dist/
+
+# Environment files
+.env
+.env.*.local
+
+# GCP/Secrets
+service-account*.json
+*-credentials.json
+application_default_credentials.json
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts - generated images from Playwright/Gemini
+tests/**/*.png
