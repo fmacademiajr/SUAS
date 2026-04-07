@@ -22,7 +22,10 @@ async def lifespan(app: FastAPI):
 
     from app.pipeline.scorer import initialize_ml_scorer
     db = get_firestore_client()
-    await initialize_ml_scorer(db)
+    try:
+        await initialize_ml_scorer(db)
+    except Exception as exc:
+        logger.warning("ML scorer init failed (will use Sonnet fallback): %s", exc)
 
     yield
     scheduler.shutdown(wait=False)
