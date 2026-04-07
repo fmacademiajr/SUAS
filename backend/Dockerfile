@@ -41,7 +41,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY app/ ./app/
-COPY scripts/ ./scripts/
 
 # Install Playwright browsers (needed for image fallback)
 RUN pip install playwright && playwright install chromium --with-deps
