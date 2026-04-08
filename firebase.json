@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "suas-app-ph",
     "public": "frontend/dist",
     "ignore": ["firebase.json", "**/node_modules/**"],
     "rewrites": [
