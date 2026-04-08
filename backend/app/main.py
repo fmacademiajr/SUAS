@@ -1,8 +1,12 @@
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.core.firestore import get_firestore_client
@@ -63,6 +67,20 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health():
         return {"status": "ok", "service": "suas-backend"}
+
+    # Serve frontend static files (built React app copied into /app/static/)
+    static_dir = Path(__file__).resolve().parent.parent / "static"
+    if static_dir.is_dir():
+        assets_dir = static_dir / "assets"
+        if assets_dir.is_dir():
+            app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+        @app.get("/{path:path}")
+        async def serve_spa(path: str):
+            file_path = static_dir / path
+            if file_path.is_file():
+                return FileResponse(str(file_path))
+            return FileResponse(str(static_dir / "index.html"))
 
     return app
 
